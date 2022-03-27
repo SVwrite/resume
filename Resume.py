@@ -2,6 +2,14 @@ from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 
+h1 = 20  # name
+h2 = 14  # Personal title
+h3 = 10  # Title
+font1 = 9  # Normal Text
+font2 = 8  # Contact
+standard_spacing = 0.015  # Standard spacing 15%
+# calculate height of all sections , sum up all sections in a vertical to see if it fits in a single page, or two are
+# needed.
 
 @dataclass
 class PersonalInfo:
@@ -69,6 +77,25 @@ class Education:
     time_list = list()
     description_list = list()
 
+    @property
+    def _height(self):
+        # calculate the height needed to create the education section header + title_list + time_list + description_list
+        height = 2 * standard_spacing  # for heading
+        if s := len(self.title_list):
+            height += s * standard_spacing
+        if s := len(self.time_list):
+            height +=
+        # Width is limited so there will be a wrap up, increasing the length
+        return height
+
+
+# plt.annotate(EduHeader, (.02,.185), weight='bold', fontsize=10, color='#58C1B2')
+# plt.annotate(EduOneTitle, (.02,.155), weight='bold', fontsize=10)
+# plt.annotate(EduOneTime, (.02,.14), weight='regular', fontsize=9, alpha=.6)
+# plt.annotate(EduOneDesc, (.04,.125), weight='regular', fontsize=9)
+# plt.annotate(EduTwoTitle, (.02,.08), weight='bold', fontsize=10)
+# plt.annotate(EduTwoTime, (.02,.065), weight='regular', fontsize=9, alpha=.6)
+
 
 EduHeader = 'EDUCATION'
 EduOneTitle = 'Example University, Bachelor of Business Administration'
@@ -113,13 +140,13 @@ class Design:
         ax.set_facecolor('white')  # remove axes
         plt.axis('off')  # add text
 
-    def _build_personal(self, personal: PersonalInfo):
+    def _process_personal(self, personal: PersonalInfo):
         plt.annotate(personal.header, (.02, .98), weight='regular', fontsize=8, alpha=.75)
         plt.annotate(personal.name, (.02, .94), weight='bold', fontsize=20)
         plt.annotate(personal.title, (.02, .91), weight='regular', fontsize=14)
         plt.annotate(personal.contact, (.7, .906), weight='regular', fontsize=8, color='#ffffff')
 
-    def _build_projects(self, projects: Projects):
+    def _process_projects(self, projects: Projects):
         plt.annotate(projects.header, (.02, .86), weight='bold', fontsize=10, color='#58C1B2')
         # get in loop
         plt.annotate(ProjectOneTitle, (.02, .832), weight='bold', fontsize=10)
@@ -131,7 +158,7 @@ class Design:
         # website = portfolio
         plt.annotate(projects.website, (.02, .6), weight='bold', fontsize=10)
 
-    def _build_experience(self, experience: Experience):
+    def _process_experience(self, experience: Experience):
         plt.annotate(experience.header, (.02, .54), weight='bold', fontsize=10, color='#58C1B2')
         # get in loop
         plt.annotate(WorkOneTitle, (.02, .508), weight='bold', fontsize=10)
@@ -144,30 +171,49 @@ class Design:
         plt.annotate(WorkThreeTime, (.02, .28), weight='regular', fontsize=9, alpha=.6)
         plt.annotate(WorkThreeDesc, (.04, .247), weight='regular', fontsize=9)
 
-    def _build_education(self, education: Education):
+    def _process_education(self, education: Education):
         plt.annotate(education.header, (.02, .185), weight='bold', fontsize=10, color='#58C1B2')
         # get in loop
-        plt.annotate(EduOneTitle, (.02, .155), weight='bold', fontsize=10)
-        plt.annotate(EduOneTime, (.02, .14), weight='regular', fontsize=9, alpha=.6)
-        plt.annotate(EduOneDesc, (.04, .125), weight='regular', fontsize=9)
-        plt.annotate(EduTwoTitle, (.02, .08), weight='bold', fontsize=10)
-        plt.annotate(EduTwoTime, (.02, .065), weight='regular', fontsize=9, alpha=.6)
+        lm_title_time = 0.02
+        top = 0.155
 
-    def _build_skill(self, skills: Skills):
+        lm_desc = 0.04
+        index = 0
+        while index < max(len(education.time_list), len(education.time_list), len(education.description_list)):
+            print(index)
+            if index < len(education.title_list):
+                title = education.title_list[index]
+                plt.annotate(title, (lm_title_time, top), weight='bold', fontsize=10)
+                top -= 0.015
+            if index < len(education.time_list):
+                time = education.time_list[index]
+                # plt.annotate(EduOneTime, (.02, .14), weight='regular', fontsize=9, alpha=.6)
+                plt.annotate(time, (lm_title_time, top), weight='regular', fontsize=9, alpha=.6)
+                top -= 0.015
+            if index < len(education.description_list):
+                description = education.description_list[index]
+                # plt.annotate(EduOneDesc, (.04, .125), weight='regular', fontsize=9)
+                plt.annotate(description, (lm_desc, top), weight='regular', fontsize=9)
+                top -= 0.015
+            top -= 2 * 0.015
+            index += 1
+
+    def _process_skill(self, skills: Skills):
         plt.annotate(skills.header, (.7, .8), weight='bold', fontsize=10, color='#ffffff')
         # get in loop
         plt.annotate(SkillsDesc, (.7, .56), weight='regular', fontsize=10, color='#ffffff')
 
-    def _build_extras(self, extras: Extras):
+    def _process_extras(self, extras: Extras):
         plt.annotate(ExtrasTitle, (.7, .43), weight='bold', fontsize=10, color='#ffffff')
         plt.annotate(ExtrasDesc, (.7, .345), weight='regular', fontsize=10, color='#ffffff')
         plt.annotate(CodeTitle, (.7, .2), weight='bold', fontsize=10, color='#ffffff')  # add qr code
 
-    def _build_file(self, file_base_name: str):
+    def _create_file(self, file_base_name: str):
         # get in loop
         plt.savefig(f'{file_base_name}.pdf', dpi=300, bbox_inches='tight')
         # get in loop
         plt.savefig(f'{file_base_name}.png', dpi=300, bbox_inches='tight')
+
 
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
@@ -176,4 +222,3 @@ import matplotlib.image as mpimg
 # imagebox = OffsetImage(arr_code, zoom=0.5)
 # ab = AnnotationBbox(imagebox, (0.84, 0.12))
 # ax.add_artist(ab)
-
